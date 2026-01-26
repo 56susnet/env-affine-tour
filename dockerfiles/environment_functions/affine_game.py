@@ -174,6 +174,11 @@ def rollout_first_prompt_and_completion(prompts: list[str], trainer, max_turns: 
                 train_reward = step_reward
             else:
                 messages.append({"role": "user", "content": formatted_observation})
+            
+            # --- Bonus: Chain-of-Thought Reward ---
+            # Give +0.1 if model uses <think> tags to reason before acting
+            if "<think>" in completion_text.lower() and "</think>" in completion_text.lower():
+                step_reward += 0.1
 
             turn_number += 1
         
