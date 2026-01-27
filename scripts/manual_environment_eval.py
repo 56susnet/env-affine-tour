@@ -43,7 +43,7 @@ def run_random_eval_suite():
 
         if LORA_MODEL_NAME:
             print(f"🚀 Starting vLLM: {BASE_MODEL_NAME} w/ lora {LORA_MODEL_NAME}")
-            vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --max-lora-rank 64 --port 8000 --trust-remote-code"
+            vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --port 8000 --trust-remote-code"
 
         else:
             print(f"🚀 Starting vLLM: {BASE_MODEL_NAME}")
