@@ -7,7 +7,13 @@ DATASET="https://huggingface.co/datasets/TuringEnterprises/Turing-Open-Reasoning
 DATASET_TYPE='{"environment_name": "game"}'
 FILE_FORMAT="s3"
 HOURS_TO_COMPLETE=12
-EXPECTED_REPO_NAME="environment_test"
+EXPECTED_REPO_NAME="environment_test_affine"
+
+WANDB_TOKEN=""
+HUGGINGFACE_USERNAME=""
+HUGGINGFACE_TOKEN=""
+LOCAL_FOLDER="/app/checkpoints/$TASK_ID/$EXPECTED_REPO_NAME"
+DOCKER_BUILDKIT=1
 
 # Directory Setup
 CHECKPOINTS_DIR="$(pwd)/secure_checkpoints"
@@ -20,8 +26,13 @@ NETWORK_NAME="trainer-net"
 docker network inspect $NETWORK_NAME >/dev/null 2>&1 || docker network create $NETWORK_NAME
 
 # 2. Build images
-docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
-docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
+# Build the downloader image
+# docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
+
+# Build the trainer image
+# docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
+# docker build --no-cache -t hf-uploader -f dockerfiles/hf-uploader.dockerfile .
+
 
 # 3. Download model and dataset
 echo "Downloading model and dataset..."
@@ -38,12 +49,16 @@ docker run --rm \
 
 # 4. Start the Environment Server in the background (-d)
 # We name it 'env-server' so the trainer can find it at that hostname
+echo "Starting environment server (Official Image with Surgical Fix)..."
 echo "Starting environment server..."
 docker run -d --rm \
   --name env-server \
   --network $NETWORK_NAME \
   --security-opt=no-new-privileges \
-  openspiel:v1
+  diagonalge/openspiel:latest
+
+echo "Waiting for environment server to boot (10s)..."
+sleep 10
 
 # 5. Run the Trainer
 # ENVIRONMENT_SERVER_URLS points to the container name 'env-server'
@@ -68,3 +83,18 @@ docker run --rm --gpus all \
 
 # 6. Cleanup: Stop the background server when finished
 docker stop env-server
+
+
+docker stop $ENV_CONTAINER_NAME
+docker rm $ENV_CONTAINER_NAME
+
+docker run --rm --gpus all \
+  --volume "$OUTPUTS_DIR:/app/checkpoints/:rw" \
+  --env HUGGINGFACE_TOKEN="$HUGGINGFACE_TOKEN" \
+  --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
+  --env WANDB_TOKEN="$WANDB_TOKEN" \
+  --env TASK_ID="$TASK_ID" \
+  --env EXPECTED_REPO_NAME="$EXPECTED_REPO_NAME" \
+  --env LOCAL_FOLDER="$LOCAL_FOLDER" \
+  --name hf-uploader \
+  hf-uploader
