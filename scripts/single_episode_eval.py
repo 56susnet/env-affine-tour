@@ -40,7 +40,7 @@ async def main():
 
     if LORA_MODEL_NAME:
         print(f"🚀 Starting vLLM: {BASE_MODEL_NAME} w/ lora {LORA_MODEL_NAME}")
-        vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --port 9000 --trust-remote-code"
+        vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --max-lora-rank 64 --port 9000 --trust-remote-code"
 
     else:
         print(f"🚀 Starting vLLM: {BASE_MODEL_NAME}")
