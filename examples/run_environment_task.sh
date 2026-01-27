@@ -9,9 +9,10 @@ FILE_FORMAT="s3"
 HOURS_TO_COMPLETE=12
 EXPECTED_REPO_NAME="environment_test_affine"
 
-WANDB_TOKEN=""
+# Prioritize environment variables if already set (e.g. exported in shell)
 HUGGINGFACE_USERNAME=""
 HUGGINGFACE_TOKEN=""
+WANDB_TOKEN=""
 LOCAL_FOLDER="/app/checkpoints/$TASK_ID/$EXPECTED_REPO_NAME"
 DOCKER_BUILDKIT=1
 
@@ -26,12 +27,10 @@ NETWORK_NAME="trainer-net"
 docker network inspect $NETWORK_NAME >/dev/null 2>&1 || docker network create $NETWORK_NAME
 
 # 2. Build images
-# Build the downloader image
-# docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
-
-# Build the trainer image
-# docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
-# docker build --no-cache -t hf-uploader -f dockerfiles/hf-uploader.dockerfile .
+echo "Building required Docker images..."
+docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
+docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
+docker build -t hf-uploader -f dockerfiles/hf-uploader.dockerfile .
 
 
 # 3. Download model and dataset
@@ -70,6 +69,9 @@ docker run --rm --gpus all \
   --volume "$CHECKPOINTS_DIR:/cache:rw" \
   --volume "$OUTPUTS_DIR:/app/checkpoints/:rw" \
   --env ENVIRONMENT_SERVER_URLS="http://env-server:8000" \
+  --env HUGGINGFACE_TOKEN="$HUGGINGFACE_TOKEN" \
+  --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
+  --env WANDB_TOKEN="$WANDB_TOKEN" \
   --name grpo-text-trainer-example \
   standalone-text-trainer \
   --task-id "$TASK_ID" \
@@ -82,11 +84,8 @@ docker run --rm --gpus all \
   --expected-repo-name "$EXPECTED_REPO_NAME"
 
 # 6. Cleanup: Stop the background server when finished
-docker stop env-server
-
-
-docker stop $ENV_CONTAINER_NAME
-docker rm $ENV_CONTAINER_NAME
+docker stop env-server || true
+docker rm env-server || true
 
 docker run --rm --gpus all \
   --volume "$OUTPUTS_DIR:/app/checkpoints/:rw" \
