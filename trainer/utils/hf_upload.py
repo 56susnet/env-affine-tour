@@ -129,9 +129,9 @@ def detect_subfolder(base_folder: str) -> str | None:
 
 
 def main():
-    hf_token = os.getenv("HUGGINGFACE_TOKEN")
+    hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
     hf_user = os.getenv("HUGGINGFACE_USERNAME")
-    wandb_token = os.getenv("WANDB_TOKEN")
+    wandb_token = os.getenv("WANDB_API_KEY") or os.getenv("WANDB_TOKEN")
     task_id = os.getenv("TASK_ID")
     repo_name = os.getenv("EXPECTED_REPO_NAME")
     local_folder = os.getenv("LOCAL_FOLDER")
@@ -143,6 +143,8 @@ def main():
         repo_subfolder = repo_subfolder.strip("/")
 
     if not all([hf_token, hf_user, task_id, repo_name]):
+        print(f"DEBUG: HF_TOKEN present: {bool(hf_token)}")
+        print(f"DEBUG: HF_USER present: {bool(hf_user)}")
         raise RuntimeError("Missing one or more required environment variables")
 
     login(token=hf_token)

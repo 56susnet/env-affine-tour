@@ -27,10 +27,9 @@ NETWORK_NAME="trainer-net"
 docker network inspect $NETWORK_NAME >/dev/null 2>&1 || docker network create $NETWORK_NAME
 
 # 2. Build images
-echo "Building required Docker images..."
-docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
-docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
-docker build -t hf-uploader -f dockerfiles/hf-uploader.dockerfile .
+#docker build -t trainer-downloader -f dockerfiles/trainer-downloader.dockerfile .
+#docker build -t standalone-text-trainer -f dockerfiles/standalone-text-trainer.dockerfile .
+#docker build -t hf-uploader -f dockerfiles/hf-uploader.dockerfile .
 
 
 # 3. Download model and dataset
@@ -70,8 +69,10 @@ docker run --rm --gpus all \
   --volume "$OUTPUTS_DIR:/app/checkpoints/:rw" \
   --env ENVIRONMENT_SERVER_URLS="http://env-server:8000" \
   --env HUGGINGFACE_TOKEN="$HUGGINGFACE_TOKEN" \
+  --env HF_TOKEN="$HUGGINGFACE_TOKEN" \
   --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
   --env WANDB_TOKEN="$WANDB_TOKEN" \
+  --env WANDB_API_KEY="$WANDB_TOKEN" \
   --name grpo-text-trainer-example \
   standalone-text-trainer \
   --task-id "$TASK_ID" \
@@ -90,8 +91,10 @@ docker rm env-server || true
 docker run --rm --gpus all \
   --volume "$OUTPUTS_DIR:/app/checkpoints/:rw" \
   --env HUGGINGFACE_TOKEN="$HUGGINGFACE_TOKEN" \
+  --env HF_TOKEN="$HUGGINGFACE_TOKEN" \
   --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
   --env WANDB_TOKEN="$WANDB_TOKEN" \
+  --env WANDB_API_KEY="$WANDB_TOKEN" \
   --env TASK_ID="$TASK_ID" \
   --env EXPECTED_REPO_NAME="$EXPECTED_REPO_NAME" \
   --env LOCAL_FOLDER="$LOCAL_FOLDER" \
