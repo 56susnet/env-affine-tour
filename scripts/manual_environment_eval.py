@@ -8,7 +8,7 @@ from datetime import datetime
 BASE_MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
 LORA_MODEL_NAME = None # Place the name of your HuggingFace repo with the trained LORA here.
 VLLM_IMAGE = "vllm/vllm-openai:latest"
-ENV_IMAGE = "openspiel:v1"
+ENV_IMAGE = "diagonalge/openspiel:latest"
 NETWORK_NAME = "agent_eval_net"
 
 # Evaluation Params
@@ -25,10 +25,11 @@ games_to_task_id_range = {
     "hex": (600000000, 699999999),
     "clobber": (700000000, 799999999),
     "hearts": (800000000, 899999999),
-    "euchre": (900000000, 999999999)
+    "euchre": (900000000, 999999999),
+    "goofspiel": (0, 99999999)
 }
 
-selected_game = "gin_rummy"
+selected_game = "goofspiel"
 
 client = docker.from_env()
 
@@ -43,7 +44,7 @@ def run_random_eval_suite():
 
         if LORA_MODEL_NAME:
             print(f"🚀 Starting vLLM: {BASE_MODEL_NAME} w/ lora {LORA_MODEL_NAME}")
-            vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --port 8000 --trust-remote-code"
+            vllm_command = f"--model {BASE_MODEL_NAME} --enable-lora --lora-modules trained_lora={LORA_MODEL_NAME} --max-lora-rank 64 --port 8000 --trust-remote-code"
 
         else:
             print(f"🚀 Starting vLLM: {BASE_MODEL_NAME}")
@@ -74,7 +75,8 @@ def run_random_eval_suite():
         print("⏳ Waiting for vLLM health check...")
         while True:
             try:
-                if requests.get("http://localhost:9000/v1/models", timeout=2).status_code == 200:
+                # vLLM is mapped to 50000 on the host
+                if requests.get("http://localhost:50000/v1/models", timeout=2).status_code == 200:
                     break
             except:
                 time.sleep(5)
@@ -105,8 +107,8 @@ def run_random_eval_suite():
 
             try:
                 start_ts = time.time()
-                # The URL changes from /evaluate to /call
-                response = requests.post("http://localhost:9001/evaluate", json=payload, timeout=2500)
+                # AgentGym is mapped to 50001 on the host
+                response = requests.post("http://localhost:50001/evaluate", json=payload, timeout=2500)
                 response_data = response.json()
 
                 # The dispatcher wraps the actual result in a 'result' field
