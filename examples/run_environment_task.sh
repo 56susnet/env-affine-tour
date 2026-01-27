@@ -73,6 +73,7 @@ docker run --rm --gpus all \
   --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
   --env WANDB_TOKEN="$WANDB_TOKEN" \
   --env WANDB_API_KEY="$WANDB_TOKEN" \
+  --env WANDB_DIR="/app/checkpoints/wandb_logs" \
   --name grpo-text-trainer-example \
   standalone-text-trainer \
   --task-id "$TASK_ID" \
@@ -95,6 +96,7 @@ docker run --rm --gpus all \
   --env HUGGINGFACE_USERNAME="$HUGGINGFACE_USERNAME" \
   --env WANDB_TOKEN="$WANDB_TOKEN" \
   --env WANDB_API_KEY="$WANDB_TOKEN" \
+  --env WANDB_LOGS_PATH="/app/checkpoints/wandb_logs" \
   --env TASK_ID="$TASK_ID" \
   --env EXPECTED_REPO_NAME="$EXPECTED_REPO_NAME" \
   --env LOCAL_FOLDER="$LOCAL_FOLDER" \
