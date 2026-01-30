@@ -18,6 +18,9 @@ RUN find /workspace/axolotl/src/axolotl -name "*.py" -exec sed -i 's/from trl.ex
 
 RUN uv pip install --no-build-isolation vllm==0.6.3.post1
 
+# Fix for Torch Int4 attribute missing in some versions
+RUN sed -i 's/int4 = torch.int4/int4 = getattr(torch, "int4", None)/g' /workspace/axolotl/src/axolotl/utils/schemas/enums.py || true
+
 WORKDIR /workspace/axolotl
 RUN mkdir -p /workspace/axolotl/configs \
     /workspace/axolotl/outputs \
