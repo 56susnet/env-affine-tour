@@ -31,6 +31,9 @@ config:
       noise_scheduler: flowmatch
       timestep_type: weighted
       dtype: bf16
+      ema_config:
+        use_ema: true
+        ema_decay: 0.99
     model:
       name_or_path: /cache/models
       arch: zimage:turbo
@@ -42,4 +45,3 @@ config:
 meta:
   name: zimage_lora
   version: '1.0'
-

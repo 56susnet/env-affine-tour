@@ -102,7 +102,6 @@ def run_random_eval_suite():
                 "base_url": "http://vllm-server:8000/v1",
                 "task_id": task_id,
                 "temperature": TEMPERATURE,
-                "max_round": 30
             }
 
             try:

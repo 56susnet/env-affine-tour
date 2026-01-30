@@ -11,7 +11,7 @@ RUN uv pip install packaging setuptools wheel awscli pydantic \
       tenacity minio pandas tiktoken sentencepiece peft Pillow \
       PyYAML textstat langcheck detoxify protobuf==3.20.3 \
       git+https://github.com/rayonlabs/fiber@2.4.0 \
-      git+https://github.com/huggingface/trl@07b4a84e0a3c8f37a2508fe177615af019782946
+      trl==0.8.6
 
 RUN uv pip install --no-build-isolation vllm==0.10.2
 

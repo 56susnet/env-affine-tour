@@ -25,7 +25,7 @@ trl:
   use_vllm: true
   vllm_mode: colocate
   vllm_enable_sleep_mode: false
-  num_generations: 8
+  num_generations: 6
   rollout_func:
 
 eval_strategy: "no"
@@ -37,16 +37,16 @@ trust_remote_code: true
 adapter: lora
 lora_model_dir:
 lora_r: 64
-lora_alpha: 32
+lora_alpha: 64
 lora_dropout: 0.0
 lora_target_linear: true
 lora_fan_in_fan_out:
 
 gradient_accumulation_steps: 1
-micro_batch_size: 8
+micro_batch_size: 6
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
-learning_rate: 7e-6
+learning_rate: 1e-5
 max_grad_norm: 1.0
 
 train_on_inputs: false

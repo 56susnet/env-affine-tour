@@ -7,11 +7,11 @@ config:
     device: cuda
     network:
       type: lora
-      linear: 32
-      linear_alpha: 32
+      linear: 128
+      linear_alpha: 128
     save:
       dtype: bf16
-      save_every: 250
+      save_every: 100
       max_step_saves_to_keep: 4
       save_format: diffusers
     datasets:
@@ -22,16 +22,24 @@ config:
       is_reg: false
     train:
       batch_size: 1
-      steps: 3000
+      steps: 1500
       lr: 0.0001
       optimizer: adamw8bit
       gradient_checkpointing: true
+      gradient_accumulation: 1
       noise_scheduler: flowmatch
       timestep_type: weighted
       dtype: bf16
       cache_text_embeddings: true
       train_unet: true
       train_text_encoder: false
+      optimizer_params:
+        weight_decay: 1e-5
+      ema_config:
+        use_ema: true
+        ema_decay: 0.995
+      do_cfg: true
+      cfg_scale: 6.0
     model:
       name_or_path: /cache/models
       arch: qwen_image
@@ -43,4 +51,3 @@ config:
 meta:
   name: qwen_image_lora
   version: '1.0'
-
