@@ -16,7 +16,7 @@ RUN uv pip install packaging setuptools wheel awscli pydantic \
 # Fix for TRL KTO import move in newer TRL versions vs older Axolotl code (Recursive Fix)
 RUN find /workspace/axolotl/src/axolotl -name "*.py" -exec sed -i 's/from trl.experimental.kto/from trl/g' {} + || true
 
-RUN uv pip install --no-build-isolation vllm==0.10.2
+RUN uv pip install --no-build-isolation vllm==0.6.3.post1
 
 WORKDIR /workspace/axolotl
 RUN mkdir -p /workspace/axolotl/configs \
