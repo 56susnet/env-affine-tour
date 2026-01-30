@@ -17,6 +17,8 @@ RUN uv pip install packaging setuptools wheel awscli pydantic \
 RUN find /workspace/axolotl/src/axolotl -name "*.py" -exec sed -i 's/from trl.experimental.kto/from trl/g' {} + || true
 
 RUN uv pip install --no-build-isolation vllm==0.6.3.post1
+# Force reinstall critical libs that depend on torch version
+RUN uv pip install --no-build-isolation --force-reinstall flash-attn bitsandbytes
 
 # Fix for Torch Int4 attribute missing in some versions
 RUN sed -i 's/int4 = torch.int4/int4 = getattr(torch, "int4", None)/g' /workspace/axolotl/src/axolotl/utils/schemas/enums.py || true
